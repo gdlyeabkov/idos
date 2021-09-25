@@ -1,14 +1,20 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Beach from '../views/Beach.vue'
+import Startup from '../views/Startup.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: '/beach',
     name: 'Beach',
     component: Beach
+  },
+  {
+    path: '/',
+    name: 'Startup',
+    component: Startup
   }
 ]
 
