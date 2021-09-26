@@ -1,17 +1,39 @@
 <template>
   <div>
     
-    <div class="beach">
+    <div class="beach" @click="drawContextMenu($event, 'click')" @contextmenu.prevent="drawContextMenu($event, 'contextMenu')">
       
-      <Tackles :tackles="tackles" />
+      <Tackles :tackles="tackles" @updateSelectedTackles="updateSelectedTacklesHandler" />
       
     </div>
     
     <Tide :pebbles="pebbles" />
 
-    <!-- <Sandbox :content="'Эта папка пуста'" :title="'Slope'" :navigation="true" /> -->
+    <!-- <Sandbox :application="{
+      name: 'slope',
+      options:{
+        content: 'Эта папка пуста',
+        navigation: true
+      }
+    }" /> -->
 
-    <!-- <Sandbox :content="'Эта папка пуста'" :title="'Nexus'" :navigation="false" /> -->
+    <Sandbox :application="{
+      name: 'Slope',
+      options:{
+        content: 'Эта папка пуста',
+        navigation: true,
+        width: 500,
+        height: 500
+      }
+    }" />
+
+    <Sandbox :application="{
+      name: 'Terminal',
+      options:{
+        width: 375,
+        height: 200
+      }
+    }" />
 
   </div>  
 </template>
@@ -25,6 +47,8 @@ export default {
   name: 'Beach',
   data(){
     return {
+      selectedTackles: [],
+      contextMenu: null,
       tackles: [
         {
           id: 1,
@@ -132,8 +156,62 @@ export default {
     }  
   },
   methods: {
-    updateSelectedTacklesHandler(){
-      console.log(`обновляю`)
+    drawContextMenu(event, typeEvent){
+      if(this.contextMenu === null && typeEvent.includes("contextMenu")){
+        this.contextMenu = document.createElement("div")
+        this.contextMenu.classList.add("scapula")
+        this.contextMenu.style = `
+          top: ${event.y}px;
+          left: ${event.x}px;
+        `
+        document.body.appendChild(this.contextMenu)
+        let createBtn = document.createElement("p")
+        createBtn.textContent = "Создать"
+        this.contextMenu.appendChild(createBtn)
+        let hrLine = document.createElement("hr")
+        this.contextMenu.appendChild(hrLine)
+        let viewBtn = document.createElement("p")
+        viewBtn.textContent = "Вид"
+        this.contextMenu.appendChild(viewBtn)
+        hrLine = document.createElement("hr")
+        this.contextMenu.appendChild(hrLine)
+      } else if(this.contextMenu !== null){
+        this.contextMenu.remove()
+        this.contextMenu = null
+        
+        if(typeEvent.includes("contextMenu")){
+          this.drawContextMenu(event, "contextMenu")
+        }
+
+      }
+
+      if(typeEvent.includes("click")){
+        this.selectedTackles = []
+        console.log(`this.selectedTackles: ${this.selectedTackles}`)
+      }
+
+    },
+    updateSelectedTacklesHandler(isSelected, tackleId, event){
+      if(this.selectedTackles.length <= 0 || event.ctrlKey){
+        if(isSelected){
+          // event.target.style = `
+          //     background-color: rgb(215, 215, 215);
+          // `
+            
+          // event.target.style = `
+          //     background-color: transparent;
+          // `
+            
+          this.selectedTackles.push(tackleId)
+        } else if(!isSelected){
+          this.selectedTackles = this.selectedTackles.filter((id) => {
+            if(tackleId !== id){
+              return true
+            }
+            return false
+          })
+        }
+      }
     }
   },
   components: {

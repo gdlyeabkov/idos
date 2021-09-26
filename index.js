@@ -60,6 +60,36 @@ app.get('/home', async (req, res)=>{
     
 })
 
+app.get('/indigenes/check', (req,res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    
+    let queryBefore = IndigeneModel.find({ email: { $in: req.query.indigenename }  })
+    queryBefore.exec((err, allIndigenes) => {
+        if(err){
+            return res.json({ "status": "Error" })
+        }
+        if(allIndigenes.length >= 1){
+            let query =  IndigeneModel.findOne({'email': req.query.indigenename}, function(err, indigene){
+                if (err){
+                    return res.json({ "status": "Error" })
+                } else {
+                    const passwordCheck = bcrypt.compareSync(req.query.indigenepassword, indigene.password) && req.query.indigenepassword !== ''
+                    if(Indigene != null && Indigene != undefined && passwordCheck){
+                        return res.json({ "status": "OK", "indigene": indigene })
+                    } else {
+                        return res.json({ "status": "Error" })
+                    }
+                }
+            })    
+        } else if(allIndigenes.length <= 0){
+            return res.json({ "status": "Error" })
+        }
+    })
+})
+
 app.get('/indigenes/create', async (req, res)=>{
 
     res.setHeader('Access-Control-Allow-Origin', '*');

@@ -1,5 +1,5 @@
 <template>
-    <div class="tackle" @click="selectTackle($event)" @mouseenter="showTitle($event)">
+    <div class="tackle" @click="selectTackle($event)" @mouseenter="tackleHover($event)" @mouseleave="tackleHover($event)">
         <p class="tackleTitle">
             {{ title }}
         </p>
@@ -12,7 +12,8 @@ export default {
     emits: [ "updateSelectedTackles" ],
     data(){
         return {
-            isSelected: false
+            isSelected: false,
+            hoverable: false,
         }
     },
     props: [
@@ -20,12 +21,20 @@ export default {
         "title"
     ],
     methods: {
-        showTitle(event){
-            event.target.title = this.title
+        tackleHover(event){
+            this.hoverable = !this.hoverable
+            if(this.hoverable && !this.isSelected){
+                event.target.title = this.title
+                event.target.style.backgroundColor = `rgba(215, 215, 215, 0.4)`
+            } else if(!this.hoverable && !this.isSelected){
+                event.target.style.backgroundColor = `transparent`
+            }
         },
         selectTackle(event){
             this.isSelected = !this.isSelected
-            this.$emit("updateSelectedTackles", this.isSelected, this.id)
+            console.log(`event.ctrlKey: ${event.ctrlKey}`)
+            this.$emit("updateSelectedTackles", this.isSelected, this.id, event)
+            
             if(this.isSelected){
                 event.target.style = `
                     background-color: rgb(215, 215, 215);
@@ -35,7 +44,7 @@ export default {
                     background-color: transparent;
                 `
             }
-            console.log(`выделяю tackle ${this.title}`)
+            
         }
     }
 }

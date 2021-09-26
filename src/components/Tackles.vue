@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="tackle in tackles" :key="tackle.id">
-            <Tackle @updateSelectedTackles="updateSelectedTacklesHandler()" :title="tackle.title" :id="tackle.id" />
+            <Tackle @updateSelectedTackles="updateSelectedTacklesHandler" :title="tackle.title" :id="tackle.id" />
         </div>
     </div>
 </template>
@@ -18,10 +18,10 @@ export default {
             selectedTackles: []
         }
     },
+    emits: [ "updateSelectedTackles" ],
     methods: {
-        updateSelectedTacklesHandler(isSelected, tackleId){
-           this.selectedTackles.push(tackleId)
-           console.log(`обновляю: ${this.selectedTackles}`)
+        updateSelectedTacklesHandler(isSelected, tackleId, event){
+           this.$emit("updateSelectedTackles", isSelected, tackleId, event)
         }
     },
     components: {
