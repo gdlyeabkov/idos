@@ -1,7 +1,5 @@
 <template>
-    <p style="margin-top: 45px;" @click="selectFish($event)" @contextmenu.prevent="drawContextMenu($event, 'contextMenu')" >
-        {{ this.name }}
-    </p>
+    <input :value="name" :disabled="!newFish ? true : false" @dblclick="openPreserve()" @click="selectFish($event)" style="text-align: center; width: 35px; height: 15px; margin-top: 55px;" @contextmenu.prevent="drawContextMenu($event, 'contextMenu')" >
 </template>
 
 <script>
@@ -9,6 +7,7 @@ export default {
     name: 'Fish',
     data(){
         return {
+            fishName: '',
             contextMenu: null,
             isSelected: false
         }
@@ -17,15 +16,21 @@ export default {
         'createFish',
         'createTackle',
         'updateSelectedFishes',
-        "clearContextMenu"
+        "clearContextMenu",
+        "changePath",
     ],
     props: [
         "id",
         "name",
         "isPreserve",
-        "selectedFishes"
+        "selectedFishes",
+        "newFish"
     ],
     methods: {
+        openPreserve(){
+            console.log(`открваем пресерв`)
+            this.$emit("changePath", this.title)
+        },
         selectFish(event){
             if(event.ctrlKey){
                 this.isSelected = !this.isSelected
@@ -113,8 +118,8 @@ export default {
                 this.selectedFishes = []
             }
         },
-        createFish(){
-            this.$emit("createFish")
+        createFish(fishName){
+            this.$emit("createFish", fishName)
         }
     }
 }

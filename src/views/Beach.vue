@@ -1,8 +1,13 @@
 <template>
   <div>
-    
+
     <div class="beach" @click="drawContextMenu($event, 'click')" @contextmenu.prevent="drawContextMenu($event, 'contextMenu')">
       
+      <div style="background-color: rgb(235, 235, 235); width: 100%; height: 35px; display: flex; justify-content: space-around; ">
+        <div @click="createSandboxHandler(1, 'Terminal', false)" style="cursor: pointer; width: 25px; height: 25px; background-color: transparent; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Internet_Explorer_10%2B11_logo.svg/1200px-Internet_Explorer_10%2B11_logo.svg.png'); background-size: 100% 100%;"></div> 
+        <div @click="createSandboxHandler(1, 'Slope', false)" style="cursor: pointer; width: 25px; height: 25px; background-color: transparent; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Internet_Explorer_10%2B11_logo.svg/1200px-Internet_Explorer_10%2B11_logo.svg.png'); background-size: 100% 100%;"></div> 
+      </div>
+
       <Tackles :fishes="fishes" :selectedTackles="selectedTackles" :tackles="tackles" @createSandbox="createSandboxHandler" @updateSelectedTackles="updateSelectedTacklesHandler" />
       
     </div>
@@ -72,6 +77,7 @@
           options:{
             width: 375,
             height: 210,
+            content: sandbox.forOpen ? sandbox.title : '',
             indigene: indigene.name
           }
         }
@@ -197,14 +203,16 @@ export default {
       })
       console.log(`this.sandboxes: ${this.sandboxes.length}`)
     },
-    createSandboxHandler(idOfSandboxAndTackle, title){
+    createSandboxHandler(idOfSandboxAndTackle, title, forOpen){
       this.sandboxes.push({
         id: idOfSandboxAndTackle,
         title: title,
+        forOpen: forOpen
       })
       this.pebbles.push({
         id: idOfSandboxAndTackle,
         title: title,
+        forOpen: forOpen
       })
     },
     drawContextMenu(event, typeEvent){
@@ -274,7 +282,7 @@ export default {
   components: {
     Tide,
     Sandbox,
-    Tackles,
+    Tackles
     
   },
 }

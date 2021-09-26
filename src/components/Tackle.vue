@@ -14,7 +14,7 @@ export default {
     mounted(){
         document.body.addEventListener("keyup", (e) => {
             if(e.code.includes("Enter") && this.isSelected){
-                this.$emit("createSandbox", this.id, this.title)
+                this.$emit("createSandbox", this.id, this.fishes.filter(fish => fish._id === this.title)[0].ext.includes("exe") ? "Terminal" : "Slope", true)
             }
         })
     },
@@ -32,7 +32,7 @@ export default {
         "id",
         "title",
         "selectedTackles",
-        "fishes"
+        "fishes",
     ],
     methods: {
         tackleHover(event){

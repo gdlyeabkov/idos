@@ -37,7 +37,7 @@
         </div>
         <div v-if="application.options.navigation" style="overflow-y: scroll; width: 75%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             <!-- {{ application.options.content }} -->
-            <Fishes @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @updateSelectedFishes="updateSelectedFishes" :selectedFishes="selectedFishes" :fishes="fishes" />
+            <Fishes @changePath="changePathHandler" @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @updateSelectedFishes="updateSelectedFishes" :selectedFishes="selectedFishes" :fishes="fishes.filter(fish => fish.path.includes(currentPath))" />
         </div>
         <div v-if="!application.options.navigation" style="width: 100%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             {{ application.options.content }}
@@ -51,6 +51,7 @@ export default {
     name: 'Slope',
     data(){
         return {
+            currentPath: 'SSD 1/',
             selectedFishes: [],
             contextMenu: null,
             fishes: [
@@ -138,6 +139,10 @@ export default {
         "createTackle"
     ],
     methods: {
+        changePathHandler(newPath){
+            this.currentPath += `${newPath}/`
+            console.log(`this.currentPath: ${this.currentPath}`)
+        },
         createTackleHandler(fishId){
             this.$emit("createTackle", fishId)
         },
@@ -184,7 +189,7 @@ export default {
                 createBtn.addEventListener("click", (event) => {
                     console.log(`Создать пресерв`)
                     let newFishName = `${Math.floor(Math.random() * 1000)}`
-                    fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${'SSD 1/'}&preserve=true`, {
+                    fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${this.currentPath}&preserve=true`, {
                         mode: 'cors',
                         method: 'GET'
                     }).then(response => response.body).then(rb  => {
