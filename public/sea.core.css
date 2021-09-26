@@ -105,6 +105,10 @@
     justify-content: flex-end;
 }
 
+.sandboxHeaderBtns > span {
+    cursor: pointer;
+}
+
 .omen {
     font-weight: bolder;
     color: rgb(255, 0, 0);
@@ -118,4 +122,22 @@
     background-color: rgb(235, 235, 235);
     border-radius: 5px;
     position: absolute;
+}
+
+.terminal {
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+    height: 100%;
+    font-size: 12px;
+}
+
+.terminalPrompt {
+    display: flex;
+    height: 25px;
+}
+
+.terminalInputString {
+    color: rgb(255, 255, 255);
+    background-color: transparent;
+    border-width: 0px;
 }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="tackle in tackles" :key="tackle.id">
-            <Tackle @updateSelectedTackles="updateSelectedTacklesHandler" :title="tackle.title" :id="tackle.id" />
+            <Tackle @closeSandbox="closeSandboxHandler" @createSandbox="createSandboxHandler" @updateSelectedTackles="updateSelectedTacklesHandler" :title="tackle.title" :id="tackle.id" />
         </div>
     </div>
 </template>
@@ -18,8 +18,18 @@ export default {
             selectedTackles: []
         }
     },
-    emits: [ "updateSelectedTackles" ],
+    emits: [
+        "updateSelectedTackles",
+        "createSandbox"
+    ],
     methods: {
+        closeSandboxHandler(){
+            console.log("закрываю")
+            this.$emit("closeSandbox")
+        },
+        createSandboxHandler(id, title){
+            this.$emit("createSandbox", id, title)
+        },
         updateSelectedTacklesHandler(isSelected, tackleId, event){
            this.$emit("updateSelectedTackles", isSelected, tackleId, event)
         }

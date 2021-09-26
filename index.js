@@ -66,18 +66,18 @@ app.get('/indigenes/check', (req,res)=>{
     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
     
-    let queryBefore = IndigeneModel.find({ email: { $in: req.query.indigenename }  })
+    let queryBefore = IndigeneModel.find({ name: { $in: req.query.indigenename }  })
     queryBefore.exec((err, allIndigenes) => {
         if(err){
             return res.json({ "status": "Error" })
         }
         if(allIndigenes.length >= 1){
-            let query =  IndigeneModel.findOne({'email': req.query.indigenename}, function(err, indigene){
+            let query =  IndigeneModel.findOne({'name': req.query.indigenename}, function(err, indigene){
                 if (err){
                     return res.json({ "status": "Error" })
                 } else {
                     const passwordCheck = bcrypt.compareSync(req.query.indigenepassword, indigene.password) && req.query.indigenepassword !== ''
-                    if(Indigene != null && Indigene != undefined && passwordCheck){
+                    if(indigene != null && indigene != undefined && passwordCheck){
                         return res.json({ "status": "OK", "indigene": indigene })
                     } else {
                         return res.json({ "status": "Error" })
@@ -129,13 +129,31 @@ app.get('/indigenes/create', async (req, res)=>{
     
 })
 
+
+app.get('/indigene/get', async (req, res)=>{
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+
+    let query = IndigeneModel.findOne({ name: req.query.indigenename })
+    query.exec((err, indigene) => {
+        if (err){
+            return res.json({ "status": "Error" })
+        }
+        return res.json({ "status": "OK", "indigene": indigene })
+    })
+    
+})
+
 app.get('**', (req, res) => { 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
     
-    return res.redirect(`https://showbellow.herokuapp.com/?redirectroute=${req.path}`)
+    return res.redirect(`/?redirectroute=${req.path}`)
 })
 
 // const port = process.env.PORT || 8080

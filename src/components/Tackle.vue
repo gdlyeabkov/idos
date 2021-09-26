@@ -9,7 +9,17 @@
 <script>
 export default {
     name: 'Tackle',
-    emits: [ "updateSelectedTackles" ],
+    mounted(){
+        document.body.addEventListener("keyup", (e) => {
+            if(e.code.includes("Enter") && this.isSelected){
+                this.$emit("createSandbox", this.id, this.title)
+            }
+        })
+    },
+    emits: [
+        "updateSelectedTackles",
+        "createSandbox"
+    ],
     data(){
         return {
             isSelected: false,
@@ -31,8 +41,11 @@ export default {
             }
         },
         selectTackle(event){
-            this.isSelected = !this.isSelected
-            console.log(`event.ctrlKey: ${event.ctrlKey}`)
+            if(event.ctrlKey){
+                this.isSelected = !this.isSelected
+            } else if(!event.ctrlKey){
+                this.isSelected = true
+            }
             this.$emit("updateSelectedTackles", this.isSelected, this.id, event)
             
             if(this.isSelected){
