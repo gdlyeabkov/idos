@@ -49,6 +49,28 @@ const IndigeneSchema = new mongoose.Schema({
 
 const IndigeneModel = mongoose.model('IndigeneModel', IndigeneSchema);
 
+const TackleSchema = new mongoose.Schema({
+    fishId: String
+}, { collection : 'mytackles' });
+
+const TackleModel = mongoose.model('TackleModel', TackleSchema);
+
+const FishSchema = new mongoose.Schema({
+    name: String,
+    path: String,
+    ext: {
+        type: String,
+        default: 'exe'
+    },
+    isPreserve: {
+        type: Boolean,
+        default: false
+    },
+}, { collection : 'myfishes' });
+
+const FishModel = mongoose.model('FishModel', FishSchema);
+
+
 app.get('/home', async (req, res)=>{
 
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -129,7 +151,6 @@ app.get('/indigenes/create', async (req, res)=>{
     
 })
 
-
 app.get('/indigene/get', async (req, res)=>{
 
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -137,14 +158,102 @@ app.get('/indigene/get', async (req, res)=>{
     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
 
-    let query = IndigeneModel.findOne({ name: req.query.indigenename })
-    query.exec((err, indigene) => {
+    let queryOfIndigenes = IndigeneModel.findOne({ name: req.query.indigenename })
+    queryOfIndigenes.exec((err, indigene) => {
         if (err){
             return res.json({ "status": "Error" })
         }
-        return res.json({ "status": "OK", "indigene": indigene })
+        let queryOfTackles = TackleModel.find({  })
+        queryOfTackles.exec((err, allTackles) => {
+            if (err){
+                return res.json({ "status": "Error" })
+            }
+            let queryOfFishes = FishModel.find({  })
+            queryOfFishes.exec((err, allFishes) => {
+                if (err){
+                    return res.json({ "status": "Error" })
+                }
+              return res.json({ "status": "OK", "indigene": indigene, "tackles": allTackles, "fishes": allFishes })
+            })
+        })
     })
     
+})
+
+app.get('/fishes/get', async (req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    let queryOfFishes = FishModel.find({  })
+    queryOfFishes.exec((err, allFishes) => {
+        if (err){
+            return res.json({ "status": "Error" })
+        }
+        return res.json({ "status": "OK", "fishes": allFishes })
+    })
+})
+
+app.get('/fishes/create', async (req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    let query = FishModel.find({})
+    query.exec((err, allFishes) => {
+        if (err){
+            return res.json({ "status": "Error" })
+        }
+        var fishExists = false;
+        allFishes.forEach(fish => {
+            if(fish.name.includes(req.query.fishname)){
+                fishExists = true
+            }
+        });
+        if(fishExists){
+            return res.json({ "status": "Error" })
+        } else {
+            const fish = new FishModel({ name: req.query.fishname, isPreserve: req.query.preserve.includes("true"), path: req.query.fishpath });
+            fish.save(function (err) {
+                if(err){
+                    return res.json({ "status": "Error" })
+                } else {
+                    return res.json({ "status": "OK" })
+                }
+            })
+        }
+    });
+})
+
+app.get('/tackles/create', async (req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, X-Access-Token, X-Socket-ID, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    let query = TackleModel.find({})
+    query.exec((err, allTackles) => {
+        if (err){
+            return res.json({ "status": "Error" })
+        }
+        var tackleExists = false;
+        allTackles.forEach(tackle => {
+            if(tackle.fishId.includes(req.query.fishid)){
+                tackleExists = true
+            }
+        });
+        if(tackleExists){
+            return res.json({ "status": "Error" })
+        } else {
+            const tackle = new TackleModel({ fishId: req.query.fishid });
+            tackle.save(function (err) {
+                if(err){
+                    return res.json({ "status": "Error" })
+                } else {
+                    return res.json({ "status": "OK" })
+                }
+            })
+        }
+    });
 })
 
 app.get('**', (req, res) => { 

@@ -16,7 +16,7 @@
             </span>
         </div>
     </div>
-    <Component :application="application" :is="application.name" @clearContextMenu="clearContextMenuHandler" />
+    <Component @createTackle="createTackleHandler" :application="application" :is="application.name" @clearContextMenu="clearContextMenuHandler" />
 </div>
 </template>
 
@@ -47,9 +47,13 @@ export default {
     },
     emits: [
         "closeSandbox",
-        "clearContextMenu"
+        "clearContextMenu",
+        "createTackle"
     ],
     methods: {
+        createTackleHandler(fishId){
+            this.$emit("createTackle", fishId)
+        },
         clearContextMenuHandler(){
             this.$emit("clearContextMenu")
         },

@@ -3,7 +3,7 @@
     
     <div class="beach" @click="drawContextMenu($event, 'click')" @contextmenu.prevent="drawContextMenu($event, 'contextMenu')">
       
-      <Tackles :tackles="tackles" @createSandbox="createSandboxHandler" @updateSelectedTackles="updateSelectedTacklesHandler" />
+      <Tackles :fishes="fishes" :selectedTackles="selectedTackles" :tackles="tackles" @createSandbox="createSandboxHandler" @updateSelectedTackles="updateSelectedTacklesHandler" />
       
     </div>
     
@@ -64,14 +64,15 @@
       }
     " /> -->
 
-    <Sandbox @clearContextMenu="clearContextMenuHandler" @closeSandbox="closeSandboxHandler" v-for="sandbox in sandboxes" :key="sandbox.id"
+    <Sandbox @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @closeSandbox="closeSandboxHandler" v-for="sandbox in sandboxes" :key="sandbox.id"
     :application="
       sandbox.title.includes('Terminal') ?
         {
           name: sandbox.title,
           options:{
             width: 375,
-            height: 210
+            height: 210,
+            indigene: indigene.name
           }
         }
       : sandbox.title.includes('Slope') ?
@@ -108,9 +109,11 @@ export default {
   name: 'Beach',
   data(){
     return {
+      indigene: '',
       sandboxes: [],
       selectedTackles: [],
       contextMenu: null,
+      fishes: [],
       tackles: [
         {
           id: 1,
@@ -155,13 +158,24 @@ export default {
         })
         .then(result => {
           if(JSON.parse(result).status.includes("OK")){
-            // this.tackles = JSON.parse(result).indigene.tackles
+            this.indigene = JSON.parse(result).indigene
+            console.log(`this.indigene: ${this.indigene.name}`)
+            this.tackles = JSON.parse(result).tackles
+            this.fishes = JSON.parse(result).fishes
+            console.log(`this.fishes: ${this.fishes}`)
           }
         });
       }
     })
   },
   methods: {
+    createTackleHandler(fishId){
+      console.log(`добавляю тэкл`)
+      this.tackles.push({
+        id: fishId,
+        title: "terminal"
+      })
+    },
     clearContextMenuHandler(){
       if(this.contextMenu !== null){
         this.contextMenu.remove()

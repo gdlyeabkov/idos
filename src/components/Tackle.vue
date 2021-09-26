@@ -1,7 +1,9 @@
 <template>
     <div class="tackle" @click="selectTackle($event)" @mouseenter="tackleHover($event)" @mouseleave="tackleHover($event)">
         <p class="tackleTitle">
-            {{ title }}
+            {{
+                fishes.filter(fish => fish._id === title)[0].name
+            }}
         </p>
     </div>
 </template>
@@ -28,7 +30,9 @@ export default {
     },
     props: [
         "id",
-        "title"
+        "title",
+        "selectedTackles",
+        "fishes"
     ],
     methods: {
         tackleHover(event){
@@ -48,7 +52,7 @@ export default {
             }
             this.$emit("updateSelectedTackles", this.isSelected, this.id, event)
             
-            if(this.isSelected){
+            if(this.isSelected && this.selectedTackles.length <= 0){
                 event.target.style = `
                     background-color: rgb(215, 215, 215);
                 `

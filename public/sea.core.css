@@ -54,6 +54,10 @@
     height: 35px;
 }
 
+.pebble:hover {
+    opacity: 0.5;
+}
+
 .boat {
     display: flex;
     justify-content: space-around;

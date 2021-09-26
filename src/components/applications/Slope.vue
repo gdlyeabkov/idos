@@ -37,18 +37,7 @@
         </div>
         <div v-if="application.options.navigation" style="overflow-y: scroll; width: 75%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             <!-- {{ application.options.content }} -->
-            <div v-if="fishes.length >= 1" style="width: 100%; height: 100%; text-align: center;">
-                
-                <div v-for="fish in fishes" style="background-size: 100% 100%; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Internet_Explorer_10%2B11_logo.svg/1200px-Internet_Explorer_10%2B11_logo.svg.png'); width: 45px; height: 45px; float: left; margin: 15px; font-size: 10px;" :key="fish.name">
-                    <p style="margin-top: 45px;">
-                        {{ fish.name }}
-                    </p>
-                </div>
-                
-            </div>
-            <div v-else>
-                {{ application.options.content }}
-            </div>
+            <Fishes @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @updateSelectedFishes="updateSelectedFishes" :selectedFishes="selectedFishes" :fishes="fishes" />
         </div>
         <div v-if="!application.options.navigation" style="width: 100%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             {{ application.options.content }}
@@ -57,6 +46,7 @@
 </template>
 
 <script>
+import Fishes from '@/components/Fishes.vue'
 export default {
     name: 'Slope',
     data(){
@@ -110,11 +100,56 @@ export default {
     },
     mounted(){
         // запрос на получение fishes
+        fetch(`http://localhost:4000/fishes/get/`, {
+          mode: 'cors',
+          method: 'GET'
+        }).then(response => response.body).then(rb  => {
+          const reader = rb.getReader()
+          return new ReadableStream({
+            start(controller) {
+              function push() {
+                reader.read().then( ({done, value}) => {
+                  if (done) {
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  push();
+                })
+              }
+              push();
+            }
+          });
+        }).then(stream => {
+          return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
+        })
+        .then(result => {
+          if(JSON.parse(result).status.includes("OK")){
+            this.fishes = JSON.parse(result).fishes
+          }
+        });
+        
+    },
+    components: {
+        Fishes
     },
     emits: [
-        "clearContextMenu"
+        "clearContextMenu",
+        "createTackle"
     ],
     methods: {
+        createTackleHandler(fishId){
+            this.$emit("createTackle", fishId)
+        },
+        clearContextMenuHandler(){
+            console.log(`чищу slope contextmenu`)
+            setTimeout(() => {
+                if(this.contextMenu !== null){
+                    this.contextMenu.remove()
+                    this.contextMenu = null
+                }
+            }, 200)
+        },
         updateSelectedFishes(isSelected, fishId, event){
             if(event.ctrlKey){
                 if(isSelected){
@@ -130,7 +165,7 @@ export default {
             } else if(!event.ctrlKey){
                 this.selectedFishes = []
                 if(isSelected){
-                this.selectedFishes.push(fishId)
+                    this.selectedFishes.push(fishId)
                 }
             }
         },
@@ -148,12 +183,82 @@ export default {
                 createBtn.style.cursor = "pointer"
                 createBtn.addEventListener("click", (event) => {
                     console.log(`Создать пресерв`)
-                    this.fishes.push({
-                        name: Math.floor(Math.random() * 1000000)
-                    })
+                    let newFishName = `${Math.floor(Math.random() * 1000)}`
+                    fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${'SSD 1/'}&preserve=true`, {
+                        mode: 'cors',
+                        method: 'GET'
+                    }).then(response => response.body).then(rb  => {
+                        const reader = rb.getReader()
+                        return new ReadableStream({
+                            start(controller) {
+                            function push() {
+                                reader.read().then( ({done, value}) => {
+                                if (done) {
+                                    controller.close();
+                                    return;
+                                }
+                                controller.enqueue(value);
+                                push();
+                                })
+                            }
+                            push();
+                            }
+                        });
+                        }).then(stream => {
+                        return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
+                        })
+                        .then(result => {
+                        if(JSON.parse(result).status.includes("OK")){
+                            this.fishes.push({
+                                name: newFishName,
+                                isPreserve: true
+                            })
+                        }
+                    });
                 })
                 createBtn.textContent = "Создать пресерв"
                 this.contextMenu.appendChild(createBtn)
+
+                createBtn = document.createElement("p")
+                createBtn.style.cursor = "pointer"
+                createBtn.addEventListener("click", (event) => {
+                    console.log(`Создать фиш`)
+                    let newFishName = `${Math.floor(Math.random() * 1000)}`
+                    fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${'SSD 1/'}&preserve=false`, {
+                        mode: 'cors',
+                        method: 'GET'
+                    }).then(response => response.body).then(rb  => {
+                        const reader = rb.getReader()
+                        return new ReadableStream({
+                            start(controller) {
+                            function push() {
+                                reader.read().then( ({done, value}) => {
+                                if (done) {
+                                    controller.close();
+                                    return;
+                                }
+                                controller.enqueue(value);
+                                push();
+                                })
+                            }
+                            push();
+                            }
+                        });
+                        }).then(stream => {
+                        return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
+                        })
+                        .then(result => {
+                        if(JSON.parse(result).status.includes("OK")){
+                            this.fishes.push({
+                                name: newFishName,
+                                isPreserve: false
+                            })
+                        }
+                    });
+                })
+                createBtn.textContent = "Создать фиш"
+                this.contextMenu.appendChild(createBtn)
+
                 let hrLine = document.createElement("hr")
                 this.contextMenu.appendChild(hrLine)
                 let viewBtn = document.createElement("p")
