@@ -37,7 +37,7 @@
         </div>
         <div v-if="application.options.navigation" style="overflow-y: scroll; width: 75%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             <!-- {{ application.options.content }} -->
-            <Fishes @changePath="changePathHandler" @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @updateSelectedFishes="updateSelectedFishes" :selectedFishes="selectedFishes" :fishes="fishes.filter(fish => fish.path.includes(currentPath))" />
+            <Fishes @changePath="changePathHandler" @createTackle="createTackleHandler" @clearContextMenu="clearContextMenuHandler" @updateSelectedFishes="updateSelectedFishes" :selectedFishes="selectedFishes" :fishes="fishes" :path="currentPath" />
         </div>
         <div v-if="!application.options.navigation" style="width: 100%; height: 100%; display: flex; justify-content: center; position: relative; top: 0px; left: 0px; height: 450px; background-color: rgb(245, 245, 245);">
             {{ application.options.content }}
@@ -140,7 +140,10 @@ export default {
     ],
     methods: {
         changePathHandler(newPath){
-            this.currentPath += `${newPath}/`
+            // this.currentPath += `${newPath}/`
+            this.currentPath = newPath
+            // this.fishes = this.fishes.filter(fish => fish.path.includes(this.currentPath))
+            // console.log(`this.currentPath: ${this.currentPath}, this.fishes.length: ${this.fishes.length}`)
             console.log(`this.currentPath: ${this.currentPath}`)
         },
         createTackleHandler(fishId){
@@ -229,37 +232,38 @@ export default {
                 createBtn.addEventListener("click", (event) => {
                     console.log(`Создать фиш`)
                     let newFishName = `${Math.floor(Math.random() * 1000)}`
-                    fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${'SSD 1/'}&preserve=false`, {
-                        mode: 'cors',
-                        method: 'GET'
-                    }).then(response => response.body).then(rb  => {
-                        const reader = rb.getReader()
-                        return new ReadableStream({
-                            start(controller) {
-                            function push() {
-                                reader.read().then( ({done, value}) => {
-                                if (done) {
-                                    controller.close();
-                                    return;
-                                }
-                                controller.enqueue(value);
-                                push();
-                                })
-                            }
-                            push();
-                            }
-                        });
-                        }).then(stream => {
-                        return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
-                        })
-                        .then(result => {
-                        if(JSON.parse(result).status.includes("OK")){
+                    // fetch(`http://localhost:4000/fishes/create/?fishname=${newFishName}&fishpath=${'SSD 1/'}&preserve=false`, {
+                    //     mode: 'cors',
+                    //     method: 'GET'
+                    // }).then(response => response.body).then(rb  => {
+                    //     const reader = rb.getReader()
+                    //     return new ReadableStream({
+                    //         start(controller) {
+                    //         function push() {
+                    //             reader.read().then( ({done, value}) => {
+                    //             if (done) {
+                    //                 controller.close();
+                    //                 return;
+                    //             }
+                    //             controller.enqueue(value);
+                    //             push();
+                    //             })
+                    //         }
+                    //         push();
+                    //         }
+                    //     });
+                    //     }).then(stream => {
+                    //     return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
+                    //     })
+                    //     .then(result => {
+                    //     if(JSON.parse(result).status.includes("OK")){
                             this.fishes.push({
                                 name: newFishName,
-                                isPreserve: false
+                                isPreserve: false,
+                                newFish: true
                             })
-                        }
-                    });
+                    //     }
+                    // });
                 })
                 createBtn.textContent = "Создать фиш"
                 this.contextMenu.appendChild(createBtn)
@@ -276,7 +280,7 @@ export default {
                 this.contextMenu = null
                 
                 if(typeEvent.includes("contextMenu")){
-                this.drawContextMenu(event, "contextMenu")
+                    this.drawContextMenu(event, "contextMenu")
                 }
 
             }
